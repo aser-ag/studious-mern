@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const courseRoutes = require('./routes/courseRoutes.js');
 const taskRoutes = require('./routes/taskRoutes');
 const eventRoutes = require('./routes/eventRoutes');
+const resourceRoutes = require('./routes/resourceRoutes');
 
 connectDB();
 const app = express();
@@ -18,6 +19,14 @@ app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/resources', resourceRoutes);
+
+// Create uploads directory if it doesn't exist
+const fs = require('fs');
+const uploadsDir = 'uploads';
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
 
 app.get('/', (req, res) => {
   res.send('API is running');
