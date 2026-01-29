@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 
 const taskSchema = mongoose.Schema(
   {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: 'User',
+    },
     course: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -25,7 +30,7 @@ const taskSchema = mongoose.Schema(
     },
   },
   {
-    timestamps: true, // handles created_at & updated_at
+    timestamps: true,
   }
 );
 
