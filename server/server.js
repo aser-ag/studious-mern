@@ -5,6 +5,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const courseRoutes = require('./routes/courseRoutes.js');
 const taskRoutes = require('./routes/taskRoutes');
+const eventRoutes = require('./routes/eventRoutes');
 
 connectDB();
 const app = express();
@@ -16,6 +17,7 @@ app.use(cors());
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/events', eventRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running');
