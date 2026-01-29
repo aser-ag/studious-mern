@@ -1,12 +1,16 @@
 const express = require('express');
 const dotenv = require('dotenv').config();
 const cors = require('cors')
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+
 const connectDB = require('./config/db');
-const authRoutes = require('./routes/authRoutes');
-const courseRoutes = require('./routes/courseRoutes.js');
-const taskRoutes = require('./routes/taskRoutes');
-const eventRoutes = require('./routes/eventRoutes');
-const resourceRoutes = require('./routes/resourceRoutes');
+
+const authRoutes = require('./routes/authRoutes.routes.js');
+const courseRoutes = require('./routes/courseRoutes.routes.js');
+const taskRoutes = require('./routes/taskRoutes.routes.js');
+const eventRoutes = require('./routes/eventRoutes.routes.js');
+const resourceRoutes = require('./routes/resourceRoutes.routes.js');
 
 connectDB();
 const app = express();
@@ -14,6 +18,40 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false}));
 app.use(cors());
+
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Studious MERN API',
+      version: '1.0.0',
+      description: 'API documentation for Studious MERN application',
+      contact: {
+        name: 'Your Name',
+        email: 'your.email@example.com',
+      },
+    },
+    servers: [
+      {
+        url: 'http://localhost:5000',
+        description: 'Development server',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+  },
+  apis: ['./routes/*.js'], // Path to your route files
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
