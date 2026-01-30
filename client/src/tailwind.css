@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background-500: hsla(45, 29%, 99%, 1.00);
+  --color-background-600: hsla(45, 29%, 95%, 1.00);
+  --color-background-700: hsla(45, 29%, 90%, 1.00);
+  --color-background-800: hsla(45, 29%, 85%, 1.00);
+
+  --color-text-300: hsla(0, 0%, 25%, 1.00);
+  --color-text-400: hsla(0, 0%, 16%, 1.00);
+  --color-text-500: #212121ff;
+  --color-text-600: hsla(0, 0%, 10%, 1.00);
+
+  --color-primary-100: hsla(240, 100%, 50%, 1.00);
+  --color-primary-200: hsla(240, 100%, 45%, 1.00);
+  --color-primary-300: hsla(240, 100%, 40%, 1.00);
+  --color-primary-400: #000099ff;
+  --color-primary-450: hsla(240, 100%, 28%, 1.00);
+  --color-primary-500: #000080ff;
+  --color-primary-600: #000066ff;
+  --color-primary-700: hsla(240, 100%, 10%, 1.00);
+  --color-primary-800: hsla(240, 100%, 5%, 1.00);
+
+  --color-secondary-25: hsla(0, 0%, 99.5%, 1.00);
+  --color-secondary-50: hsla(0, 0%, 98%, 1.00);
+  --color-secondary-75: hsla(0, 0%, 96%, 1.00);
+  --color-secondary-100: hsla(0, 0%, 95%, 1.00);
+  --color-secondary-200: hsla(0, 0%, 90%, 1.00);
+  --color-secondary-300: hsla(0, 0%, 85%, 1.00);
+  --color-secondary-400: hsla(0, 0%, 80%, 1.00);
+  --color-secondary-500: hsla(0, 0%, 75%, 1.00);
+  --color-secondary-600: hsla(0, 0%, 70%, 1.00);
+  --color-secondary-700: hsla(0, 0%, 65%, 1.00);
+  --color-secondary-800: hsla(0, 0%, 60%, 1.00);
+  --color-secondary-900: hsla(0, 0%, 55%, 1.00);
+
+  --color-redAccent-500: hsla(350, 74%, 44%, 1.00);
+  --color-redAccent-600: hsla(350, 74%, 40%, 1.00);
+
+  --color-blueAccent-400: hsla(205, 43%, 99%, 1.00);
+  --color-blueAccent-500: hsla(205, 43%, 95%, 1.00);
+  --color-blueAccent-600: hsla(205, 43%, 90%, 1.00);
+
+  --color-success-300: hsla(171, 86%, 35%, 1.00);
+  --color-success-400: hsla(171, 86%, 30%, 1.00);
+  --color-success-500: #097b6aff;
+  --color-success-600: hsla(171, 86%, 20%, 1.00);
+
+  --color-cardBg-100: hsla(205, 43%, 97%, 1.00);
+  --color-cardBg-200: hsla(205, 43%, 95%, 1.00);
+  --color-cardBg-250: hsla(205, 43%, 93.5%, 1.00);
+  --color-cardBg-300: hsla(205, 43%, 90%, 1.00);
+  --color-cardBg-400: hsla(205, 43%, 85%, 1.00);
+  --color-cardBg-500: hsla(205, 43%, 80%, 1.00);
+  --color-cardBg-600: hsla(205, 43%, 70%, 1.00);
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui;
+}
