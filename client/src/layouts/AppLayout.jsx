@@ -6,8 +6,14 @@ const AppLayout = () => {
   const [userName, setUserName] = useState('');
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const menuRef = useRef(null);
+  const searchRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState({ courses: [], tasks: [], events: [] });
+  const [isSearching, setIsSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -15,11 +21,46 @@ const AppLayout = () => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setShowProfileMenu(false);
       }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowResults(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchQuery.trim()) {
+        const fetchSearchResults = async () => {
+          setIsSearching(true);
+          try {
+            const token = localStorage.getItem('token');
+            const config = {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            };
+            const { data } = await axios.get(`http://localhost:5000/api/search?q=${searchQuery}`, config);
+            setSearchResults(data);
+            setShowResults(true);
+          } catch (error) {
+            console.error('Error fetching search results:', error);
+          } finally {
+            setIsSearching(false);
+          }
+        };
+
+        fetchSearchResults();
+      } else {
+        setSearchResults({ courses: [], tasks: [], events: [] });
+        setShowResults(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
   // Get current page title from path
   const getCurrentTitle = () => {
@@ -108,15 +149,90 @@ const AppLayout = () => {
         {/* Header */}
         <header className="flex items-center justify-between bg-background-500 px-6 py-4 shadow-sm sticky top-0 z-10">
           {/* Search bar */}
-          <div className="flex items-center gap-2 relative w-full max-w-md">
-            <form className="flex items-center gap-2 relative w-full max-w-md">
-              <img src="/assets/icons/search.svg" alt="Search" className="w-5 h-5" />
+          <div className="flex items-center gap-2 relative w-full max-w-md" ref={searchRef}>
+            <form className="flex items-center gap-2 relative w-full max-w-md" onSubmit={(e) => e.preventDefault()}>
+              <img src="/assets/icons/search.svg" alt="Search" className="w-5 h-5 absolute left-3 z-10" />
               <input
                 type="text"
                 placeholder="Search courses, tasks, or events..."
                 className="w-full bg-secondary-100 text-text-500 placeholder-text-200 rounded-full pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-300 transition-all duration-200"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => {
+                  if (searchQuery.trim()) setShowResults(true);
+                }}
               />
             </form>
+
+            {/* Search Results Dropdown */}
+            {showResults && (
+              <div className="absolute top-12 left-0 w-full bg-white rounded-xl shadow-lg border border-secondary-200 max-h-96 overflow-y-auto z-50">
+                {isSearching ? (
+                  <div className="p-4 text-center text-text-400">Searching...</div>
+                ) : (
+                  <>
+                    {(searchResults.courses.length === 0 && searchResults.tasks.length === 0 && searchResults.events.length === 0) ? (
+                      <div className="p-4 text-center text-text-400">No results found.</div>
+                    ) : (
+                      <div className="py-2">
+                        {searchResults.courses.length > 0 && (
+                          <div className="mb-2">
+                            <h3 className="px-4 py-2 text-xs font-semibold text-text-400 uppercase tracking-wider bg-secondary-50">Courses</h3>
+                            {searchResults.courses.map(course => (
+                              <Link
+                                key={course._id}
+                                to={`/app/courses/${course._id}`}
+                                className="block px-4 py-2 hover:bg-secondary-100 transition-colors"
+                                onClick={() => setShowResults(false)}
+                              >
+                                <div className="text-text-600 font-medium">{course.title}</div>
+                                <div className="text-xs text-text-400 truncate">{course.description}</div>
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+
+                        {searchResults.tasks.length > 0 && (
+                          <div className="mb-2">
+                            <h3 className="px-4 py-2 text-xs font-semibold text-text-400 uppercase tracking-wider bg-secondary-50">Tasks</h3>
+                            {searchResults.tasks.map(task => (
+                              <Link
+                                key={task._id}
+                                to={`/app/tasks`}
+                                className="block px-4 py-2 hover:bg-secondary-100 transition-colors"
+                                onClick={() => setShowResults(false)}
+                              >
+                                <div className="text-text-600 font-medium">{task.title}</div>
+                                <div className="text-xs text-text-400 truncate">{task.details}</div>
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+
+                        {searchResults.events.length > 0 && (
+                          <div className="mb-2">
+                            <h3 className="px-4 py-2 text-xs font-semibold text-text-400 uppercase tracking-wider bg-secondary-50">Events</h3>
+                            {searchResults.events.map(event => (
+                              <Link
+                                key={event._id}
+                                to={`/app/events`}
+                                className="block px-4 py-2 hover:bg-secondary-100 transition-colors"
+                                onClick={() => setShowResults(false)}
+                              >
+                                <div className="text-text-600 font-medium">{event.title}</div>
+                                <div className="text-xs text-text-400 truncate">
+                                  {new Date(event.start).toLocaleDateString()}
+                                </div>
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Profile dropdown */}

@@ -11,11 +11,12 @@ const courseRoutes = require('./routes/courseRoutes.routes.js');
 const taskRoutes = require('./routes/taskRoutes.routes.js');
 const eventRoutes = require('./routes/eventRoutes.routes.js');
 const resourceRoutes = require('./routes/resourceRoutes.routes.js');
+const searchRoutes = require('./routes/searchRoutes.routes.js');
 
 connectDB();
 const app = express();
 
-app.use(express.urlencoded({ extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(cors(
   {
     origin: 'http://localhost:5173',
@@ -63,6 +64,7 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/resources', resourceRoutes);
+app.use('/api/search', searchRoutes);
 
 // Create uploads directory if it doesn't exist
 const fs = require('fs');
