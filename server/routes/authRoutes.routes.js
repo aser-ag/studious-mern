@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser } = require('../controllers/authController');
+const { registerUser, loginUser, getProfile, updateProfile } = require('../controllers/authController');
+const { protect } = require('../middleware/authMiddleware');
 
 /**
  * @swagger
@@ -148,5 +149,43 @@ router.post('/register', registerUser);
  *                   example: Server error
  */
 router.post('/login', loginUser);
+
+router.post('/login', loginUser);
+
+/**
+ * @swagger
+ * /api/auth/profile:
+ *   get:
+ *     summary: Get user profile
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile data
+ *       401:
+ *         description: Not authenticated
+ *   put:
+ *     summary: Update user profile
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Updated profile
+ */
+router.route('/profile')
+    .get(protect, getProfile)
+    .put(protect, updateProfile);
 
 module.exports = router;

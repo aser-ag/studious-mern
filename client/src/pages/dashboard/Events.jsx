@@ -62,13 +62,13 @@ const Events = () => {
       ]);
 
       const formatted = eventsRes.data.map(e => ({
-        id: e.id,
+        id: e._id,
         title: e.title,
         start: e.start,
         end: e.end,
         extendedProps: {
           notes: e.notes,
-          course_id: e.course_id
+          course_id: e.course
         }
       }));
 
@@ -92,18 +92,25 @@ const Events = () => {
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post('/api/events', createForm);
+      const payload = {
+        title: createForm.title,
+        course: createForm.course_id,
+        notes: createForm.notes,
+        start: createForm.start,
+        end: createForm.end
+      };
+      const res = await api.post('/api/events', payload);
 
       setEvents(prev => [
         ...prev,
         {
-          id: res.data.id,
+          id: res.data._id,
           title: res.data.title,
           start: res.data.start,
           end: res.data.end,
           extendedProps: {
             notes: res.data.notes,
-            course_id: res.data.course_id
+            course_id: res.data.course
           }
         }
       ]);
@@ -133,15 +140,15 @@ const Events = () => {
         prev.map(ev =>
           ev.id === editForm.id
             ? {
-                ...ev,
-                title: res.data.title,
-                start: res.data.start,
-                end: res.data.end,
-                extendedProps: {
-                  notes: res.data.notes,
-                  course_id: res.data.course_id
-                }
+              ...ev,
+              title: res.data.title,
+              start: res.data.start,
+              end: res.data.end,
+              extendedProps: {
+                notes: res.data.notes,
+                course_id: res.data.course
               }
+            }
             : ev
         )
       );
@@ -159,7 +166,10 @@ const Events = () => {
     if (!selectedEvent || !window.confirm('Delete this event?')) return;
 
     try {
-      await api.delete(`/api/events/${selectedEvent.id}`);
+      await api.delete(`/api/events/${selectedEvent.id}`); // This comes from FullCalendar event object, so check if it mapped _id to id or extendedProps._id
+      // FullCalendar events utilize 'id' string.
+      // In formatted (line 65), we mapped id: e._id. So selectedEvent.id IS the _id.
+      // So this chunk is actually fine IF line 65 is fixed. But I should check if I need to change anything else.
       setEvents(prev => prev.filter(e => e.id !== selectedEvent.id));
       setShowEditModal(false);
       setSelectedEvent(null);
@@ -174,7 +184,7 @@ const Events = () => {
     const dateStr = info.dateStr;
     setCreateForm({
       title: '',
-      course_id: courses[0]?.id || '',
+      course_id: courses[0]?._id || '',
       notes: '',
       start: dateStr,
       end: dateStr
@@ -246,8 +256,79 @@ const Events = () => {
         />
       </div>
 
-      {/* CREATE + EDIT MODALS */}
-      {/* JSX unchanged — your modal code is already solid */}
+      {/* CREATE EVENT MODAL */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4">Create Event</h2>
+            <form onSubmit={handleCreateEvent} className="space-y-4">
+              <div>
+                <label className="block mb-1 text-sm font-medium">Title</label>
+                <input type="text" value={createForm.title} onChange={e => setCreateForm({ ...createForm, title: e.target.value })} className="w-full border rounded p-2" required />
+              </div>
+              <div>
+                <label className="block mb-1 text-sm font-medium">Course</label>
+                <select value={createForm.course_id} onChange={e => setCreateForm({ ...createForm, course_id: e.target.value })} className="w-full border rounded p-2">
+                  <option value="">None</option>
+                  {courses.map(c => (
+                    <option key={c._id} value={c._id}>{c.title}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block mb-1 text-sm font-medium">Description</label>
+                <textarea value={createForm.notes} onChange={e => setCreateForm({ ...createForm, notes: e.target.value })} className="w-full border rounded p-2"></textarea>
+              </div>
+              <div>
+                <label className="block mb-1 text-sm font-medium">Start</label>
+                <input type="datetime-local" value={createForm.start} onChange={e => setCreateForm({ ...createForm, start: e.target.value })} className="w-full border rounded p-2" required />
+              </div>
+              <div>
+                <label className="block mb-1 text-sm font-medium">End</label>
+                <input type="datetime-local" value={createForm.end} onChange={e => setCreateForm({ ...createForm, end: e.target.value })} className="w-full border rounded p-2" />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <button type="button" onClick={() => setShowCreateModal(false)} className="px-4 py-2 rounded bg-gray-200">Cancel</button>
+                <button type="submit" className="bg-primary-300 text-white px-4 py-2 rounded hover:bg-primary-400">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* EDIT EVENT MODAL */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4">Edit Event</h2>
+            <form onSubmit={handleUpdateEvent} className="space-y-4">
+              <div>
+                <label className="block mb-1 text-sm font-medium">Title</label>
+                <input type="text" value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} className="w-full border rounded p-2" required />
+              </div>
+              <div>
+                <label className="block mb-1 text-sm font-medium">Description</label>
+                <textarea value={editForm.notes} onChange={e => setEditForm({ ...editForm, notes: e.target.value })} className="w-full border rounded p-2"></textarea>
+              </div>
+              <div>
+                <label className="block mb-1 text-sm font-medium">Start</label>
+                <input type="datetime-local" value={editForm.start} onChange={e => setEditForm({ ...editForm, start: e.target.value })} className="w-full border rounded p-2" required />
+              </div>
+              <div>
+                <label className="block mb-1 text-sm font-medium">End</label>
+                <input type="datetime-local" value={editForm.end} onChange={e => setEditForm({ ...editForm, end: e.target.value })} className="w-full border rounded p-2" />
+              </div>
+              <div className="flex justify-between">
+                <button type="button" onClick={handleDeleteEvent} className="px-4 py-2 rounded bg-red-600 text-white">Delete</button>
+                <div className="space-x-2">
+                  <button type="button" onClick={() => setShowEditModal(false)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+                  <button type="submit" className="px-4 py-2 bg-success-500 text-white rounded hover:bg-success-600">Update</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

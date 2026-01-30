@@ -1,12 +1,25 @@
-// client/src/layouts/AppLayout.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Outlet, useNavigate, NavLink, Link, useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 const AppLayout = () => {
   const [userName, setUserName] = useState('');
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const menuRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Get current page title from path
   const getCurrentTitle = () => {
@@ -55,9 +68,9 @@ const AppLayout = () => {
 
     if (isActive) {
       return (
-        <span className="flex px-2 py-1 rounded bg-secondary-200 scale-105 duration-200 transition-all text-text-600 cursor-default">
-          <img src={icon} alt="" className="px-2 w-5 h-5" />
-          {text}
+        <span className="flex items-center gap-3 px-2 py-1 rounded bg-secondary-200 scale-105 duration-200 transition-all text-text-600 cursor-default">
+          <img src={icon} alt="" className="w-6 h-6" />
+          <span className="text-base font-medium">{text}</span>
         </span>
       );
     }
@@ -65,10 +78,10 @@ const AppLayout = () => {
     return (
       <NavLink
         to={href}
-        className="flex px-2 py-1 rounded hover:bg-secondary-100 hover:scale-105 duration-200 transition-all text-text-400"
+        className="flex items-center gap-3 px-2 py-1 rounded hover:bg-secondary-100 hover:scale-105 duration-200 transition-all text-text-400"
       >
-        <img src={icon} alt="" className="px-2 w-5 h-5" />
-        {text}
+        <img src={icon} alt="" className="w-6 h-6" />
+        <span className="text-base font-medium">{text}</span>
       </NavLink>
     );
   };
@@ -107,11 +120,11 @@ const AppLayout = () => {
           </div>
 
           {/* Profile dropdown */}
-          <div className="relative">
+          {/* Profile dropdown */}
+          <div className="relative" ref={menuRef}>
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               className="flex items-center space-x-2 focus:outline-none"
-              onBlur={() => setTimeout(() => setShowProfileMenu(false), 200)}
             >
               <img
                 src="/assets/img/avatar.png"
@@ -127,6 +140,7 @@ const AppLayout = () => {
                 <Link
                   to="/app/profile"
                   className="block px-4 py-2 text-text-400 hover:bg-secondary-200 rounded-t-lg"
+                  onClick={() => setShowProfileMenu(false)}
                 >
                   Profile
                 </Link>

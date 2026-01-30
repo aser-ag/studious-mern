@@ -31,7 +31,7 @@ const Profile = () => {
     try {
       setLoading(true);
 
-      const res = await api.get('/api/users/profile');
+      const res = await api.get('/api/auth/profile');
 
       setUser({
         id: res.data._id,
@@ -68,7 +68,7 @@ const Profile = () => {
         payload.password = formData.password;
       }
 
-      const res = await api.put('/api/users/profile', payload);
+      const res = await api.put('/api/auth/profile', payload);
 
       // Update local state
       setUser({
